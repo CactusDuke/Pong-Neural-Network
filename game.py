@@ -11,7 +11,7 @@ dt = 0
 ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 ball_dir = pygame.Vector2(300, 300)
 
-player_pos = pygame.Vector2(random.randint(30, 60), random.randint(30, 60))
+player_pos = pygame.Vector2(30, 30)
 
 intCount = 0
 
@@ -64,43 +64,30 @@ while running:
     ball_pos.x = temp_pos.x
 
 
-
+    direction = 0
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
+        direction = 1
+    if keys[pygame.K_s]:
+        direction = -1
+
+    if (direction == 1):
         if (player_pos.y - 300 * dt >= 30):
             player_pos.y -= 300 * dt
         else:
             player_pos.y = 30
-    if keys[pygame.K_s]:
+    if (direction == -1):
         if (player_pos.y + 300 * dt + (screen.get_height() / 6) <= screen.get_height() - 30):
             player_pos.y += 300 * dt
         else:
             player_pos.y = screen.get_height() - 30 - (screen.get_height() / 6)
 
     #Print score
-
-    # create a font object.
-    # 1st parameter is the font file
-    # which is present in pygame.
-    # 2nd parameter is size of the font
     font = pygame.font.Font('freesansbold.ttf', 32)
-    
-    # create a text surface object,
-    # on which text is drawn on it.
     text = font.render("Score " + str(intCount), True, "white", "black")
-
-    # create a rectangular object for the
-    # text surface object
     textRect = text.get_rect()
-    
-    # set the center of the rectangular object.
     textRect.center = (screen.get_width() // 2, screen.get_height() // 8)
-
-
     screen.blit(text, textRect)
-
-
-
 
     # flip() the display to put your work on screen
     pygame.display.flip()
