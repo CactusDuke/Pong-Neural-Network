@@ -9,7 +9,11 @@ running = True
 dt = 0
 
 ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-ball_dir = pygame.Vector2(1, 1)
+ball_dir = pygame.Vector2(-300, 300)
+
+player_pos = pygame.Vector2(30, 30)
+
+intCount = 0
 
 while running:
     # poll for events
@@ -25,23 +29,78 @@ while running:
     pygame.draw.rect(screen, "white", pygame.Rect(0, 0, screen.get_width() - 30, 30))
     pygame.draw.rect(screen, "white", pygame.Rect(0, screen.get_height() - 30, screen.get_width(), 30))
 
-    pygame.draw.circle(screen, "red", player_pos, 40)
+    pygame.draw.circle(screen, "white", ball_pos, 20)
 
     #Player
+    pygame.draw.rect(screen, "red", pygame.Rect(player_pos.x - 30, player_pos.y, 30, screen.get_height() / 6))
+
+
+    #Ball Collision
+    temp_pos = pygame.Vector2(ball_pos.x + ball_dir.x * dt, ball_pos.y + ball_dir.y * dt)
+    if (temp_pos.x >= screen.get_width() - 50):
+        temp_pos.x = screen.get_width() - 50
+        ball_dir.x = -1 * ball_dir.x
+
+    if (temp_pos.y >= screen.get_height() - 50):
+        temp_pos.y = screen.get_height() - 50
+        ball_dir.y = -1 * ball_dir.y
+    
+    if (temp_pos.y <= 50):
+        temp_pos.y = 50
+        ball_dir.y = -1 * ball_dir.y
+
+    if (temp_pos.x <= 50):
+        if (temp_pos.y >= player_pos.y - 5):
+            if (temp_pos.y <= player_pos.y + screen.get_height() / 6 + 5):
+                intCount += 1
+                temp_pos.x = 50
+                ball_dir.x = -1 * ball_dir.x
+                ball_dir.y = 1 * ball_dir.y
+    if (temp_pos.x <= 0):
+        running = False
 
     # Moving ball
-    player_pos.y += ball_dir.y * dt
-    player_pos.x += ball_dir.x * dt
+    ball_pos.y = temp_pos.y
+    ball_pos.x = temp_pos.x
+
+
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
-        player_pos.y -= 300 * dt
+        if (player_pos.y - 300 * dt >= 30):
+            player_pos.y -= 300 * dt
+        else:
+            player_pos.y = 30
     if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
+        if (player_pos.y + 300 * dt + (screen.get_height() / 6) <= screen.get_height() - 30):
+            player_pos.y += 300 * dt
+        else:
+            player_pos.y = screen.get_height() - 30 - (screen.get_height() / 6)
+
+    #Print score
+
+    # create a font object.
+    # 1st parameter is the font file
+    # which is present in pygame.
+    # 2nd parameter is size of the font
+    font = pygame.font.Font('freesansbold.ttf', 32)
+    
+    # create a text surface object,
+    # on which text is drawn on it.
+    text = font.render("Score " + str(intCount), True, "white", "black")
+
+    # create a rectangular object for the
+    # text surface object
+    textRect = text.get_rect()
+    
+    # set the center of the rectangular object.
+    textRect.center = (screen.get_width() // 2, screen.get_height() // 8)
+
+
+    screen.blit(text, textRect)
+
+
+
 
     # flip() the display to put your work on screen
     pygame.display.flip()
@@ -51,4 +110,5 @@ while running:
     # independent physics.
     dt = clock.tick(60) / 1000
 
+print(intCount)
 pygame.quit()
