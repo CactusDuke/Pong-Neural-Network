@@ -1,6 +1,6 @@
 # Example file showing a circle moving on screen
 import pygame
-
+import random
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -9,9 +9,9 @@ running = True
 dt = 0
 
 ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-ball_dir = pygame.Vector2(-300, 300)
+ball_dir = pygame.Vector2(300, 300)
 
-player_pos = pygame.Vector2(30, 30)
+player_pos = pygame.Vector2(random.randint(30, 60), random.randint(30, 60))
 
 intCount = 0
 
@@ -54,8 +54,8 @@ while running:
             if (temp_pos.y <= player_pos.y + screen.get_height() / 6 + 5):
                 intCount += 1
                 temp_pos.x = 50
-                ball_dir.x = -1 * ball_dir.x
-                ball_dir.y = 1 * ball_dir.y
+                ball_dir.x = -1 * ball_dir.x + random.randint(-5,5)
+                ball_dir.y = 1 * ball_dir.y + random.randint(-5,5)
     if (temp_pos.x <= 0):
         running = False
 
