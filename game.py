@@ -1,6 +1,7 @@
 # Example file showing a circle moving on screen
 import pygame
 import random
+"""
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -11,8 +12,8 @@ ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 ball_dir = pygame.Vector2(300, 300)
 player_pos = pygame.Vector2(30, 30)
 globScore = 0
-
-def drawObjects():
+"""
+def drawObjects(screen, player_pos, ball_pos, globScore):
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("black")
 
@@ -32,11 +33,10 @@ def drawObjects():
     textRect.center = (screen.get_width() // 2, screen.get_height() // 8)
     screen.blit(text, textRect)
 
-def ballMovement(dt):
-    #Ball Collision
+    pygame.display.flip()
 
-    global globScore
-    global running
+def ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore):
+    #Ball Collision
     temp_pos = pygame.Vector2(ball_pos.x + ball_dir.x * dt, ball_pos.y + ball_dir.y * dt)
 
     if (temp_pos.x <= 50):
@@ -63,16 +63,9 @@ def ballMovement(dt):
         ball_dir.y = -1 * ball_dir.y
 
 
-    return(temp_pos)
+    return(temp_pos, running, globScore)
 
-def gameMovement(direction, dt):
-    #direction = 0
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        direction = 1
-    if keys[pygame.K_s]:
-        direction = -1
-
+def gameMovement(screen, direction, player_pos, dt):
     if (direction == 1):
         if (player_pos.y - 300 * dt >= 30):
             player_pos.y -= 300 * dt
@@ -84,25 +77,54 @@ def gameMovement(direction, dt):
         else:
             player_pos.y = screen.get_height() - 30 - (screen.get_height() / 6)
 
+    return(player_pos)
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+def displayGame():
+    # pygame setup
+    pygame.init()
+    screen = pygame.display.set_mode((1280, 720))
+    clock = pygame.time.Clock()
+    running = True
+    dt = 0
+    ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+    ball_dir = pygame.Vector2(300, 300)
+    player_pos = pygame.Vector2(30, 30)
+    globScore = 0
 
-    drawObjects()
-    ball_pos = ballMovement(dt)
-    gameMovement(0, dt)
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-    # flip() the display to put your work on screen
-    pygame.display.flip()
+        #User input 
+        direction = 0
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            direction = 1
+        if keys[pygame.K_s]:
+            direction = -1
 
-    # limits FPS to 1200
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
-    dt = clock.tick(1200) / 1000
+
+        drawObjects(screen, player_pos, ball_pos, globScore)
+        ball_pos, running, globScore = ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore)
+        player_pos = gameMovement(screen, direction, player_pos, dt)
+
+        # limits FPS to 1200
+        # dt is delta time in seconds since last frame, used for framerate-
+        # independent physics.
+        dt = clock.tick(1200) / 1000
+    
+    pygame.quit()
+    return(globScore)
+
+def AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock):
+    dt = clock.tick(1200) / 100
+    drawObjects(screen, player_pos, ball_pos, globScore)
+    ball_pos, running, globScore = ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore)
+    player_pos = gameMovement(screen, direction, player_pos, dt)    
+    array = [player_pos.x / 100, player_pos.y / 100, ball_pos.x / 100, ball_pos.y / 100, ball_dir.x / 100, ball_dir.y / 100]
+    return(array, running, globScore, player_pos, ball_pos, ball_dir)
 
 
-
-print(globScore)
-pygame.quit()
+if __name__ == '__main__':
+    displayGame()
