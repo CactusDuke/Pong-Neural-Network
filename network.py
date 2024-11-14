@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import math
 
 class Network:
     def __init__(self, numLayers, sizes): 
@@ -13,12 +14,12 @@ class Network:
         for i in range(1, self.numLayers):
             tempLayer = self.layers[i]
             tempLayer2 = self.layers[i -1]
-            tempLayer.biases.append(random.uniform(-1,1))
+            tempLayer.biases.append(random.uniform(-10,10))
 
             for j in range(tempLayer.numNodes):
                 temp = []
                 for k in range(tempLayer2.numNodes):
-                    temp.append(random.uniform(-1,1))
+                    temp.append(random.uniform(-10,10))
                 tempLayer.weights.append(temp)
 
     def run(self, startVal):
@@ -38,6 +39,8 @@ class Layer:
     
     def calculateNextValues(self, values):
         self.nodes = np.add(np.matmul(self.weights, values), self.biases)
+        for i in range(len(self.nodes)):
+            self.nodes[i] = 1 / (1 + math.exp(-1 * self.nodes[i]))
         return(self.nodes)
         
 
