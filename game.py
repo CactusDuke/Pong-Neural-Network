@@ -1,6 +1,7 @@
 # Example file showing a circle moving on screen
 import pygame
 import random
+from classes import *
 
 def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum = -1):
     # fill the screen with a color to wipe away anything from last frame
@@ -10,7 +11,7 @@ def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum
     pygame.draw.rect(screen, "white", pygame.Rect(0, 0, screen.get_width() - 30, 30))
     pygame.draw.rect(screen, "white", pygame.Rect(0, screen.get_height() - 30, screen.get_width(), 30))
 
-    pygame.draw.circle(screen, "white", ball_pos, 20)
+    pygame.draw.circle(screen, "white", (ball_pos.x, ball_pos.y), 20)
 
     #Player
     pygame.draw.rect(screen, "red", pygame.Rect(player_pos.x - 30, player_pos.y, 30, screen.get_height() / 6))
@@ -40,13 +41,13 @@ def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum
 
     pygame.display.flip()
 
-def ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore):
+def ballMovement(screenW, screenH, dt, ball_dir, ball_pos, player_pos, running, globScore):
     #Ball Collision
-    temp_pos = pygame.Vector2(ball_pos.x + ball_dir.x * dt, ball_pos.y + ball_dir.y * dt)
+    temp_pos = Vec2(ball_pos.x + ball_dir.x * dt, ball_pos.y + ball_dir.y * dt)
 
     if (temp_pos.x <= 50):
         if (temp_pos.y >= player_pos.y - 5):
-            if (temp_pos.y <= player_pos.y + screen.get_height() / 6 + 5):
+            if (temp_pos.y <= player_pos.y + screenH / 6 + 5):
                 globScore += 1
                 temp_pos.x = 50
                 ball_dir.x = -1 * ball_dir.x + random.randint(-5,5)
@@ -55,12 +56,12 @@ def ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore)
     if (temp_pos.x <= 0):
         running = False
 
-    if (temp_pos.x >= screen.get_width() - 50):
-        temp_pos.x = screen.get_width() - 50
+    if (temp_pos.x >= screenW - 50):
+        temp_pos.x = screenW - 50
         ball_dir.x = -1 * ball_dir.x
 
-    if (temp_pos.y >= screen.get_height() - 50):
-        temp_pos.y = screen.get_height() - 50
+    if (temp_pos.y >= screenH - 50):
+        temp_pos.y = screenH - 50
         ball_dir.y = -1 * ball_dir.y
     
     if (temp_pos.y <= 50):
@@ -70,17 +71,17 @@ def ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore)
 
     return(temp_pos, running, globScore)
 
-def gameMovement(screen, direction, player_pos, dt):
+def gameMovement(screenW, screenH, direction, player_pos, dt):
     if (direction == 1):
         if (player_pos.y - 300 * dt >= 30):
             player_pos.y -= 300 * dt
         else:
             player_pos.y = 30
     if (direction == -1):
-        if (player_pos.y + 300 * dt + (screen.get_height() / 6) <= screen.get_height() - 30):
+        if (player_pos.y + 300 * dt + (screenH / 6) <= screenH - 30):
             player_pos.y += 300 * dt
         else:
-            player_pos.y = screen.get_height() - 30 - (screen.get_height() / 6)
+            player_pos.y = screenH - 30 - (screenH / 6)
 
     return(player_pos)
 
@@ -88,12 +89,15 @@ def displayGame():
     # pygame setup
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
+    screenW = 1280
+    screenH = 720
+
     clock = pygame.time.Clock()
     running = True
     dt = 0
-    ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-    ball_dir = pygame.Vector2(300, 300)
-    player_pos = pygame.Vector2(30, 30)
+    ball_pos = Vec2(screenW / 2, screenH / 2)
+    ball_dir = Vec2(300, 300)
+    player_pos = Vec2(30, 30)
     globScore = 0
 
     while running:
@@ -117,20 +121,19 @@ def displayGame():
         # limits FPS to 1200
         # dt is delta time in seconds since last frame, used for framerate-
         # independent physics.
-        dt = clock.tick(1200) / 1000
+        dt = clock.tick(1200) / 1000 #Around 0.001
     
     pygame.quit()
     return(globScore)
 
-def AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock, trainieNum = -1, genNum = -1, visual = True):
-    dt = clock.tick(1200) / 100 #First number is framerate, second controls actual speed
-    #dt = clock.tick(1200) / 50
-    #Checking if it should be visulized
+def AIControlled(screenW, screenH, player_pos, ball_pos, ball_dir, running, globScore, direction, trainieNum = -1, genNum = -1, visual = True, screen = None, clock = None):
     if visual:
+        dt = clock.tick(2400) / 100 #First number is framerate, second controls actual speed
         drawObjects(screen, player_pos, ball_pos, globScore, trainieNum, genNum) #Function to draw shapes and text
-    #TODO add the gen number and specific network's number within the gen to drawing
-    player_pos = gameMovement(screen, direction, player_pos, dt) #Movies the player and ensures it maintains within the bounds
-    ball_pos, running, globScore = ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore) #Moves the ball and checks it's collisions
+    else:
+        dt = 0.01
+    player_pos = gameMovement(screenW, screenH, direction, player_pos, dt) #Movies the player and ensures it maintains within the bounds
+    ball_pos, running, globScore = ballMovement(screenW, screenH, dt, ball_dir, ball_pos, player_pos, running, globScore) #Moves the ball and checks it's collisions
         
     array = [player_pos.x / 100, player_pos.y / 100, ball_pos.x / 100, ball_pos.y / 100, ball_dir.x / 100, ball_dir.y / 100] #Array to hold the values that the network uses. It is divided by 100 because it overflows in the sigmoid function
     return(array, running, globScore, player_pos, ball_pos, ball_dir) #Returning the updated infomation

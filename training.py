@@ -1,5 +1,6 @@
 from network import *
 from game import *
+from classes import *
 
 def trainVisual(fileName):
     pygame.init()
@@ -73,6 +74,8 @@ def trainVisual(fileName):
             #Initializiation for game
             screen = pygame.display.set_mode((1280, 720))
             clock = pygame.time.Clock()
+            screenW = 1280
+            screenH = 720
             running = True
             dt = 0
             ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
@@ -92,7 +95,7 @@ def trainVisual(fileName):
                     direction = -1 #Down
 
                 #Updating game states
-                array, running, globScore, player_pos, ball_pos, ball_dir = AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock, trainieNum, genCount)
+                array, running, globScore, player_pos, ball_pos, ball_dir = AIControlled(screenW, screenH, player_pos, ball_pos, ball_dir, running, globScore, direction, trainieNum, genCount, True, screen, clock)
             
             #Saves the networks score to a dictionary
             oldGen[network] = globScore
@@ -100,7 +103,7 @@ def trainVisual(fileName):
         #print(genCount)
     pygame.quit()
 
-#TODO This will most certainly fail currently
+#TODO This will most certainly fail currently. Maybe. Desnt fail is just bad
 def trainNoVisual(fileName):
     genCount = 0
     oldGen = {}
@@ -133,7 +136,7 @@ def trainNoVisual(fileName):
                 goodNetworks.append(list(oldGen.keys())[i])
 
             for i in range(3):
-                if list(oldGen.values())[i] == 0:
+                if list(oldGen.values())[i] < 100:
                     goodValue.append(100)
                 else:
                     goodValue.append(list(oldGen.values())[i])
@@ -153,7 +156,7 @@ def trainNoVisual(fileName):
             for i in range(6, 20):
                 temp = Network(3, [6, 3, 2])
                 temp.copyWeights(goodNetworks[0].passLayers())
-                temp.mutate(-i / 100, i / 100)
+                temp.mutate(-i / goodValue[0], i / goodValue[0])
                 currentGen.append(temp)
             #Fully random
             for i in range(5):
@@ -168,15 +171,15 @@ def trainNoVisual(fileName):
         genCount += 1
 
         for network in currentGen:
+            screenW = 1280
+            screenH = 720
             trainieNum += 1
             #Initializiation for game
-            screen = pygame.display.set_mode((1280, 720))
-            clock = pygame.time.Clock()
             running = True
             dt = 0
-            ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-            ball_dir = pygame.Vector2(300, 300)
-            player_pos = pygame.Vector2(30, 30)
+            ball_pos = Vec2(screenW / 2, screenH / 2)
+            ball_dir = Vec2(300, 300)
+            player_pos = Vec2(30, 30)
             globScore = 0
             array = [player_pos.x / 100, player_pos.y / 100, ball_pos.x / 100, ball_pos.y / 100, ball_dir.x / 100, ball_dir.y / 100]
 
@@ -191,11 +194,12 @@ def trainNoVisual(fileName):
                     direction = -1 #Down
 
                 #Updating game states
-                array, running, globScore, player_pos, ball_pos, ball_dir = AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock, trainieNum, genCount, False)
+                array, running, globScore, player_pos, ball_pos, ball_dir = AIControlled(screenW, screenH, player_pos, ball_pos, ball_dir, running, globScore, direction, trainieNum, genCount, False)
             
             #Saves the networks score to a dictionary
             oldGen[network] = globScore
         print(genCount)
 
 if __name__ == '__main__':
-    trainNoVisual("train.txt") #Yeah this doesnt work
+    trainNoVisual("train.txt") #Yeah this doesnt work. Maybe?
+    #trainVisual("train.txt") #AHHH
