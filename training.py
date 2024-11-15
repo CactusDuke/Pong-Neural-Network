@@ -2,14 +2,14 @@ from network import *
 from game import *
 
 def trainVisual(fileName):
+    pygame.init()
     genCount = 0
     oldGen = {}
 
     with open(fileName, "w") as file: #Ensures that the file is empty
         pass
 
-    while genCount < 100:
-        pygame.init()
+    while genCount < 50:
         currentGen = []
         if genCount == 0:
             #Creating 100 random networks
@@ -19,7 +19,7 @@ def trainVisual(fileName):
                 currentGen.append(temp)
         else:
             oldGen = dict(sorted(oldGen.items(), key=lambda item: -item[1]))
-            print(oldGen)
+            #print(oldGen)
             #Save best of the generation to a text file
             with open(fileName, "a") as file:
                 file.write(f"\n\nScore: {list(oldGen.values())[0]}")
@@ -34,7 +34,7 @@ def trainVisual(fileName):
                 goodNetworks.append(list(oldGen.keys())[i])
 
             for i in range(3):
-                if list(oldGen.values())[i] == 0:
+                if list(oldGen.values())[i] < 100:
                     goodValue.append(100)
                 else:
                     goodValue.append(list(oldGen.values())[i])
@@ -54,7 +54,7 @@ def trainVisual(fileName):
             for i in range(6, 20):
                 temp = Network(3, [6, 3, 2])
                 temp.copyWeights(goodNetworks[0].passLayers())
-                temp.mutate(-i / 100, i / 100)
+                temp.mutate(-i / goodValue[0], i / goodValue[0])
                 currentGen.append(temp)
             #Fully random
             for i in range(5):
@@ -65,7 +65,11 @@ def trainVisual(fileName):
         oldGen = {}
         #Running the networks
         #TODO See if it is possible to multithread
+        trainieNum = 0
+        genCount += 1
+
         for network in currentGen:
+            trainieNum += 1
             #Initializiation for game
             screen = pygame.display.set_mode((1280, 720))
             clock = pygame.time.Clock()
@@ -88,16 +92,13 @@ def trainVisual(fileName):
                     direction = -1 #Down
 
                 #Updating game states
-                array, running, globScore, player_pos, ball_pos, ball_dir = AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock)
+                array, running, globScore, player_pos, ball_pos, ball_dir = AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock, trainieNum, genCount)
             
             #Saves the networks score to a dictionary
             oldGen[network] = globScore
-
-        #Increases the generation count and prints it
-        genCount += 1
-        pygame.quit() #TODO try pushing pygame init and quit to outside the while statement
-        print(genCount)
-
+        
+        #print(genCount)
+    pygame.quit()
 
 #TODO This will most certainly fail currently
 def trainNoVisual(fileName):
@@ -117,7 +118,7 @@ def trainNoVisual(fileName):
                 currentGen.append(temp)
         else:
             oldGen = dict(sorted(oldGen.items(), key=lambda item: -item[1]))
-            print(oldGen)
+            print(oldGen.values())
             #Save best of the generation to a text file
             with open(fileName, "a") as file:
                 file.write(f"\n\nScore: {list(oldGen.values())[0]}")
@@ -163,7 +164,11 @@ def trainNoVisual(fileName):
         oldGen = {}
         #Running the networks
         #TODO See if it is possible to multithread
+        trainieNum = 0
+        genCount += 1
+
         for network in currentGen:
+            trainieNum += 1
             #Initializiation for game
             screen = pygame.display.set_mode((1280, 720))
             clock = pygame.time.Clock()
@@ -186,11 +191,11 @@ def trainNoVisual(fileName):
                     direction = -1 #Down
 
                 #Updating game states
-                array, running, globScore, player_pos, ball_pos, ball_dir = AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock)
+                array, running, globScore, player_pos, ball_pos, ball_dir = AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock, trainieNum, genCount, False)
             
             #Saves the networks score to a dictionary
             oldGen[network] = globScore
-
-        #Increases the generation count and prints it
-        genCount += 1
         print(genCount)
+
+if __name__ == '__main__':
+    trainNoVisual("train.txt") #Yeah this doesnt work
