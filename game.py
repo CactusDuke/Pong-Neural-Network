@@ -1,18 +1,7 @@
 # Example file showing a circle moving on screen
 import pygame
 import random
-"""
-# pygame setup
-pygame.init()
-screen = pygame.display.set_mode((1280, 720))
-clock = pygame.time.Clock()
-running = True
-dt = 0
-ball_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-ball_dir = pygame.Vector2(300, 300)
-player_pos = pygame.Vector2(30, 30)
-globScore = 0
-"""
+
 def drawObjects(screen, player_pos, ball_pos, globScore):
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("black")
@@ -118,14 +107,16 @@ def displayGame():
     return(globScore)
 
 def AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock):
-    dt = clock.tick(1200) / 100
+    dt = clock.tick(1200) / 100 #First number is framerate, second controls actual speed
     #dt = clock.tick(1200) / 50
-    drawObjects(screen, player_pos, ball_pos, globScore)
-    ball_pos, running, globScore = ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore)
-    player_pos = gameMovement(screen, direction, player_pos, dt)    
-    array = [player_pos.x / 100, player_pos.y / 100, ball_pos.x / 100, ball_pos.y / 100, ball_dir.x / 100, ball_dir.y / 100]
-    return(array, running, globScore, player_pos, ball_pos, ball_dir)
+    drawObjects(screen, player_pos, ball_pos, globScore) #Function to draw shapes and text
+    #TODO add the gen number and specific network's number within the gen to drawing
+    player_pos = gameMovement(screen, direction, player_pos, dt) #Movies the player and ensures it maintains within the bounds
+    ball_pos, running, globScore = ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore) #Moves the ball and checks it's collisions
+        
+    array = [player_pos.x / 100, player_pos.y / 100, ball_pos.x / 100, ball_pos.y / 100, ball_dir.x / 100, ball_dir.y / 100] #Array to hold the values that the network uses. It is divided by 100 because it overflows in the sigmoid function
+    return(array, running, globScore, player_pos, ball_pos, ball_dir) #Returning the updated infomation
 
 
 if __name__ == '__main__':
-    displayGame()
+    displayGame() #Player controlled game

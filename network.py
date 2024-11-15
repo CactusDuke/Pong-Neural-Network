@@ -79,14 +79,19 @@ class Layer:
     def saveLayer(self, fileName):
         with open(fileName, "a") as file:
             file.write("Weights\n")
+            file.write("[")
             for i in range(len(self.weights)):
+                file.write("[")
                 for j in range(len(self.weights[i])):
-                    file.write(f"{self.weights[i][j]} ")
-                file.write(";")
+                    file.write(f"{self.weights[i][j]}, ")
+                file.write("], ")
+            file.write("]")
 
             file.write("\nBiases\n")
+            file.write("[")
             for i in range(len(self.biases)):
-                file.write(f"{self.biases[i]} ")
+                file.write(f"{self.biases[i]}, ")
+            file.write("]")
         
 def test():
 
