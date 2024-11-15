@@ -119,6 +119,7 @@ def displayGame():
 
 def AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock):
     dt = clock.tick(1200) / 100
+    #dt = clock.tick(1200) / 50
     drawObjects(screen, player_pos, ball_pos, globScore)
     ball_pos, running, globScore = ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore)
     player_pos = gameMovement(screen, direction, player_pos, dt)    

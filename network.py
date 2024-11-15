@@ -14,12 +14,12 @@ class Network:
         for i in range(1, self.numLayers):
             tempLayer = self.layers[i]
             tempLayer2 = self.layers[i -1]
-            tempLayer.biases.append(random.uniform(-10,10))
 
             for j in range(tempLayer.numNodes):
+                tempLayer.biases.append(random.uniform(-5,5))
                 temp = []
                 for k in range(tempLayer2.numNodes):
-                    temp.append(random.uniform(-10,10))
+                    temp.append(random.uniform(-5,5))
                 tempLayer.weights.append(temp)
 
     def run(self, startVal):
