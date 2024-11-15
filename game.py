@@ -2,7 +2,7 @@
 import pygame
 import random
 
-def drawObjects(screen, player_pos, ball_pos, globScore):
+def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum = -1):
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("black")
 
@@ -21,6 +21,22 @@ def drawObjects(screen, player_pos, ball_pos, globScore):
     textRect = text.get_rect()
     textRect.center = (screen.get_width() // 2, screen.get_height() // 8)
     screen.blit(text, textRect)
+
+    #If in training mode
+    if genNum != -1:
+        #Generation Number
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render("Generation " + str(genNum), True, "white", "black")
+        textRect = text.get_rect()
+        textRect.center = (screen.get_width() // 4, screen.get_height() // 8)
+        screen.blit(text, textRect)
+
+        #Internal Number
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render("Trainie # " + str(trainieNum), True, "white", "black")
+        textRect = text.get_rect()
+        textRect.center = (3 * (screen.get_width() // 4), screen.get_height() // 8)
+        screen.blit(text, textRect)
 
     pygame.display.flip()
 
@@ -106,10 +122,12 @@ def displayGame():
     pygame.quit()
     return(globScore)
 
-def AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock):
+def AIControlled(screen, player_pos, ball_pos, ball_dir, running, globScore, direction, clock, trainieNum = -1, genNum = -1, visual = True):
     dt = clock.tick(1200) / 100 #First number is framerate, second controls actual speed
     #dt = clock.tick(1200) / 50
-    drawObjects(screen, player_pos, ball_pos, globScore) #Function to draw shapes and text
+    #Checking if it should be visulized
+    if visual:
+        drawObjects(screen, player_pos, ball_pos, globScore, trainieNum, genNum) #Function to draw shapes and text
     #TODO add the gen number and specific network's number within the gen to drawing
     player_pos = gameMovement(screen, direction, player_pos, dt) #Movies the player and ensures it maintains within the bounds
     ball_pos, running, globScore = ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore) #Moves the ball and checks it's collisions
