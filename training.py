@@ -7,40 +7,42 @@ def trainVisual(fileName):
     genCount = 0
     oldGen = {}
 
+    numOfGenerations = 50
+    numTrainiesWithinGen = 25
+
     with open(fileName, "w") as file: #Ensures that the file is empty
         pass
 
-    while genCount < 50:
+    while genCount < numOfGenerations: 
         currentGen = []
-        if genCount == 0:
-            #Creating 100 random networks
-            for i in range(25):
+        if genCount == 0: #If it is the first generation
+            #Creating the correct number of random networks
+            for i in range(numTrainiesWithinGen):
                 temp = Network(3, [6, 3, 2])
                 temp.randomizeInitial()
                 currentGen.append(temp)
         else:
+            #Sorts the network value pairs from best to worst
             oldGen = dict(sorted(oldGen.items(), key=lambda item: -item[1]))
-            #print(oldGen)
             #Save best of the generation to a text file
             with open(fileName, "a") as file:
-                file.write(f"\n\nScore: {list(oldGen.values())[0]}")
-            list(oldGen.keys())[0].save(fileName)
-            #print(list(oldGen.values())[0])
+                file.write(f"\n\nScore: {list(oldGen.values())[0]}") #Saves the score value
+            list(oldGen.keys())[0].save(fileName) #Saves the network
 
-            #Collect top five networks
+            #Collect top three networks and their scores
             goodNetworks = []
             goodValue = []
             
             for i in range(3):
-                goodNetworks.append(list(oldGen.keys())[i])
+                goodNetworks.append(list(oldGen.keys())[i]) 
 
-            for i in range(3):
+            for i in range(3): #Ensures that if the score is beneath 100 it is set to 100
                 if list(oldGen.values())[i] < 100:
                     goodValue.append(100)
                 else:
                     goodValue.append(list(oldGen.values())[i])
             
-            #Places top three twice each
+            #Places top three networks twice each
             for i in range(3):
                 temp = Network(3, [6, 3, 2])
                 temp.copyWeights(goodNetworks[i].passLayers())
@@ -50,14 +52,13 @@ def trainVisual(fileName):
                 temp.copyWeights(goodNetworks[i].passLayers())
                 currentGen.append(temp)
 
-            #Ones based off best
-            #TODO Change so that the changes are smaller the greater the score gets
-            for i in range(6, 20):
+            #Mutates of the best performing network to create a majority of the rest of the generation
+            for i in range(6, numTrainiesWithinGen - 5):
                 temp = Network(3, [6, 3, 2])
                 temp.copyWeights(goodNetworks[0].passLayers())
-                temp.mutate(-i / goodValue[0], i / goodValue[0])
+                temp.mutate(-i / goodValue[0], i / goodValue[0]) #The better the network the less available room for mutation, allow more room for mutation as the trainie number gets larger
                 currentGen.append(temp)
-            #Fully random
+            #Last five networks are fully random
             for i in range(5):
                 temp = Network(3, [6, 3, 2])
                 temp.randomizeInitial()
@@ -100,10 +101,9 @@ def trainVisual(fileName):
             #Saves the networks score to a dictionary
             oldGen[network] = globScore
         
-        #print(genCount)
     pygame.quit()
 
-#TODO This will most certainly fail currently. Maybe. Desnt fail is just bad
+#TODO Make this work better, functionally similar to above
 def trainNoVisual(fileName):
     genCount = 0
     oldGen = {}

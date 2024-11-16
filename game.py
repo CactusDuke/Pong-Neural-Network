@@ -6,13 +6,11 @@ from classes import *
 def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum = -1):
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("black")
-
+    #Drawing the shapes to the screen
     pygame.draw.rect(screen, "white", pygame.Rect(screen.get_width() - 30, 0, 60, screen.get_height()))
     pygame.draw.rect(screen, "white", pygame.Rect(0, 0, screen.get_width() - 30, 30))
     pygame.draw.rect(screen, "white", pygame.Rect(0, screen.get_height() - 30, screen.get_width(), 30))
-
     pygame.draw.circle(screen, "white", (ball_pos.x, ball_pos.y), 20)
-
     #Player
     pygame.draw.rect(screen, "red", pygame.Rect(player_pos.x - 30, player_pos.y, 30, screen.get_height() / 6))
 
@@ -42,9 +40,9 @@ def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum
     pygame.display.flip()
 
 def ballMovement(screenW, screenH, dt, ball_dir, ball_pos, player_pos, running, globScore):
-    #Ball Collision
+    #Find the next position
     temp_pos = Vec2(ball_pos.x + ball_dir.x * dt, ball_pos.y + ball_dir.y * dt)
-
+    #Check if next position intersects and apply relevent changes to the direction and temp pos
     if (temp_pos.x <= 50):
         if (temp_pos.y >= player_pos.y - 5):
             if (temp_pos.y <= player_pos.y + screenH / 6 + 5):
@@ -68,10 +66,12 @@ def ballMovement(screenW, screenH, dt, ball_dir, ball_pos, player_pos, running, 
         temp_pos.y = 50
         ball_dir.y = -1 * ball_dir.y
 
-
+    #I am actually not sure why this is working, I forgot to return the new balls direction
+    #I miss C, it yells at me like a proper language when I mess up
     return(temp_pos, running, globScore)
 
 def gameMovement(screenW, screenH, direction, player_pos, dt):
+    #Ensures that the player doesnt leave the screen
     if (direction == 1):
         if (player_pos.y - 300 * dt >= 30):
             player_pos.y -= 300 * dt
@@ -114,10 +114,10 @@ def displayGame():
             direction = -1
 
 
-        drawObjects(screen, player_pos, ball_pos, globScore)
-        ball_pos, running, globScore = ballMovement(screen, dt, ball_dir, ball_pos, player_pos, running, globScore)
-        player_pos = gameMovement(screen, direction, player_pos, dt)
-
+        drawObjects(screen, player_pos, ball_pos, globScore, -1, -1)
+        player_pos = gameMovement(screenW, screenH, direction, player_pos, dt)
+        ball_pos, running, globScore = ballMovement(screenW, screenH, dt, ball_dir, ball_pos, player_pos, running, globScore)
+        
         # limits FPS to 1200
         # dt is delta time in seconds since last frame, used for framerate-
         # independent physics.
@@ -127,6 +127,10 @@ def displayGame():
     return(globScore)
 
 def AIControlled(screenW, screenH, player_pos, ball_pos, ball_dir, running, globScore, direction, trainieNum = -1, genNum = -1, visual = True, screen = None, clock = None):
+    for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
     if visual:
         dt = clock.tick(2400) / 100 #First number is framerate, second controls actual speed
         drawObjects(screen, player_pos, ball_pos, globScore, trainieNum, genNum) #Function to draw shapes and text
