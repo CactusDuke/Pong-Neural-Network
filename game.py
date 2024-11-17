@@ -127,10 +127,6 @@ def displayGame():
     return(globScore)
 
 def AIControlled(screenW, screenH, player_pos, ball_pos, ball_dir, running, globScore, direction, trainieNum = -1, genNum = -1, visual = True, screen = None, clock = None):
-    for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
     if visual:
         dt = clock.tick(2400) / 100 #First number is framerate, second controls actual speed
         drawObjects(screen, player_pos, ball_pos, globScore, trainieNum, genNum) #Function to draw shapes and text

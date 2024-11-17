@@ -24,7 +24,7 @@ class Network:
                 tempLayer.weights.append(temp)
 
     def run(self, startVal): #Takes an array of values equivalent in number to the input layer number of nodes  
-        assert self.sizes == len(startVal), Exception("Error: Invalid input size")
+        assert self.sizes[0] == len(startVal), Exception("Error: Invalid input size")
 
         values = startVal
         for i in range(1, self.numLayers): #Starts at 1 because the input layer does not have associated weight values
