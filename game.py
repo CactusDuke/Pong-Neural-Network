@@ -3,7 +3,7 @@ import pygame
 import random
 from classes import *
 
-def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum = -1):
+def drawObjects(screen, player_pos, ball_pos, ball_dir, globScore, trainieNum = -1, genNum = -1):
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("black")
     #Drawing the shapes to the screen
@@ -21,6 +21,13 @@ def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum
     textRect.center = (screen.get_width() // 2, screen.get_height() // 8)
     screen.blit(text, textRect)
 
+    #Current Ball Direction Vector
+    font = pygame.font.Font('freesansbold.ttf', 32)
+    text = font.render("Direction " + str(ball_dir.x) + " " + str(ball_dir.y), True, "white", "black")
+    textRect = text.get_rect()
+    textRect.center = (3 * (screen.get_width() // 4), 7 * screen.get_height() // 8)
+    screen.blit(text, textRect)
+
     #If in training mode
     if genNum != -1:
         #Generation Number
@@ -36,6 +43,7 @@ def drawObjects(screen, player_pos, ball_pos, globScore, trainieNum = -1, genNum
         textRect = text.get_rect()
         textRect.center = (3 * (screen.get_width() // 4), screen.get_height() // 8)
         screen.blit(text, textRect)
+
 
     pygame.display.flip()
 
@@ -114,7 +122,7 @@ def displayGame():
             direction = -1
 
 
-        drawObjects(screen, player_pos, ball_pos, globScore, -1, -1)
+        drawObjects(screen, player_pos, ball_pos, ball_dir, globScore, -1, -1)
         player_pos = gameMovement(screenW, screenH, direction, player_pos, dt)
         ball_pos, running, globScore = ballMovement(screenW, screenH, dt, ball_dir, ball_pos, player_pos, running, globScore)
         
@@ -128,8 +136,8 @@ def displayGame():
 
 def AIControlled(screenW, screenH, player_pos, ball_pos, ball_dir, running, globScore, direction, trainieNum = -1, genNum = -1, visual = True, screen = None, clock = None):
     if visual:
-        dt = clock.tick(2400) / 100 #First number is framerate, second controls actual speed
-        drawObjects(screen, player_pos, ball_pos, globScore, trainieNum, genNum) #Function to draw shapes and text
+        dt = clock.tick(3600) / 100 #First number is framerate, second controls actual speed
+        drawObjects(screen, player_pos, ball_pos, ball_dir, globScore, trainieNum, genNum) #Function to draw shapes and text
     else:
         dt = 0.01
     player_pos = gameMovement(screenW, screenH, direction, player_pos, dt) #Movies the player and ensures it maintains within the bounds
